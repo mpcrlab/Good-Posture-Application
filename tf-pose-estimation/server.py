@@ -44,9 +44,11 @@ app = Flask(__name__)
 
 @app.route("/image", methods=['POST'])
 def image():
-    img = Image.frombytes('RGBA', (640, 480), request.files['media'].read()).convert('RGB')
+    #img = Image.frombytes('RGBA', (640, 480), request.files['media'].read()).convert('RGB')
+    print(request.data)
+    img = Image.frombytes('RGBA', (2304, 1536), request.files['media'].read()).convert('RGB').resize((640,480))
     np_img = np.array(img)
-    np_img = np.swapaxes(np_img, 0, 1)
+    #np_img = np.swapaxes(np_img, 0, 1)
     print(np_img.shape)
     
     fixed_image = Image.fromarray(np_img, 'RGB')
@@ -54,8 +56,8 @@ def image():
 
 
     humans = e.inference(np_img, resize_to_default=True, upsample_size=4)
-    print(humans)
-    return "ok"
+    print(str([[(part.part_idx, part.x, part.y) for part in x.body_parts.values()] for x in humans]))
+    return str([[(part.part_idx, part.x, part.y) for part in x.body_parts.values()] for x in humans])
 
 @app.route("/")
 def home():
